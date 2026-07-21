@@ -19,11 +19,11 @@ RUN pip install --no-cache-dir \
     nvidia-cudnn-cu12
 
 # Copy the custom markitdown engine and install it
-COPY packages/markitdown /app/packages/markitdown
+COPY backend/packages/markitdown /app/packages/markitdown
 RUN pip install --no-cache-dir -e '/app/packages/markitdown[all]'
 
-# Copy the OCR plugin and install it with OpenAI support
-COPY packages/markitdown-ocr /app/packages/markitdown-ocr
+# Copy the OCR plugin and install it alongside OpenAI bindings
+COPY backend/packages/markitdown-ocr /app/packages/markitdown-ocr
 RUN pip install --no-cache-dir -e '/app/packages/markitdown-ocr[llm]'
 
 COPY backend /app/backend

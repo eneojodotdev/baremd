@@ -8,8 +8,8 @@ services:
       dockerfile: backend/Dockerfile
     volumes:
       - ./backend:/app/backend
-      - ./packages/markitdown:/app/packages/markitdown
-      - ./packages/markitdown-ocr:/app/packages/markitdown-ocr
+      - ./backend/packages/markitdown:/app/packages/markitdown
+      - ./backend/packages/markitdown-ocr:/app/packages/markitdown-ocr
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     ports:

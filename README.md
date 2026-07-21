@@ -27,6 +27,10 @@ This fork introduces several fundamental architectural changes to the original M
 *   Documented and integrated a direct-injection fix for `libcublas` and `libcudnn` via pip to resolve CTranslate2 library linking issues.
 *   **Rationale:** When running deep learning inference engines (like `faster-whisper`) in WSL, the system often struggles to map native CUDA 12 `.so` libraries. By explicitly injecting the pip-installed NVidia binaries into the `LD_LIBRARY_PATH`, I ensured the GPU acceleration functions flawlessly in cross-platform Linux/WSL environments.
 
+### 4. Enterprise SSRF & DNS Rebinding Protection
+*   Injected a custom socket-level interception adapter directly into the parsing engine to globally block all attempts to resolve or route to private, local, and AWS metadata IP ranges. Explicitly blocked local `file:` schemes for remote conversion.
+*   **Rationale:** Standard Python HTTP clients are vulnerable to Server-Side Request Forgery and DNS rebinding attacks. I hardened the URL conversion endpoint to ensure it can safely fetch public resources without inadvertently exposing internal enterprise network topologies.
+
 ---
 
 ## Quick Start (Docker)
@@ -103,7 +107,7 @@ To migrate your existing Python workloads, simply swap the installation source:
 pip uninstall markitdown
 
 # 2. Install this supercharged fork
-pip install -e 'packages/markitdown[all]'
+pip install -e 'backend/packages/markitdown[all]'
 pip install faster-whisper
 ```
 

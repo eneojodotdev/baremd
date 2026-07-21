@@ -12,6 +12,10 @@ from pathlib import Path
 from urllib.parse import urlparse
 from warnings import warn
 import requests
+from markitdown._ssrf_protection import enable_ssrf_protection, validate_uri_scheme
+
+# Globally enable SSRF DNS rebinding protection for all requests
+enable_ssrf_protection()
 import magika
 import charset_normalizer
 import codecs
@@ -440,39 +444,17 @@ class MarkItDown:
 
         # File URIs
         if uri.startswith("file:"):
-            netloc, path = file_uri_to_path(uri)
-            if netloc and netloc != "localhost":
-                raise ValueError(
-                    f"Unsupported file URI: {uri}. Netloc must be empty or localhost."
-                )
-            return self.convert_local(
-                path,
-                stream_info=stream_info,
-                file_extension=file_extension,
-                url=mock_url,
-                **kwargs,
-            )
+            raise ValueError("SSRF Protection: The 'file:' URI scheme is strictly prohibited.")
         # Data URIs
         elif uri.startswith("data:"):
-            mimetype, attributes, data = parse_data_uri(uri)
-
-            base_guess = StreamInfo(
-                mimetype=mimetype,
-                charset=attributes.get("charset"),
-            )
-            if stream_info is not None:
-                base_guess = base_guess.copy_and_update(stream_info)
-
-            return self.convert_stream(
-                io.BytesIO(data),
-                stream_info=base_guess,
-                file_extension=file_extension,
-                url=mock_url,
-                **kwargs,
-            )
+            raise ValueError("SSRF Protection: The 'data:' URI scheme is prohibited.")
         # HTTP/HTTPS URIs
         elif uri.startswith("http:") or uri.startswith("https:"):
-            response = self._requests_session.get(uri, stream=True)
+            # Enforce strict URI validation (reject file://, data://, gopher://, etc.)
+            validate_uri_scheme(uri)
+            
+            # Enforce a strict 30-second timeout to prevent resource exhaustion/hanging connections
+            response = self._requests_session.get(uri, stream=True, timeout=30)
             response.raise_for_status()
             return self.convert_response(
                 response,
@@ -483,7 +465,7 @@ class MarkItDown:
             )
         else:
             raise ValueError(
-                f"Unsupported URI scheme: {uri.split(':')[0]}. Supported schemes are: file:, data:, http:, https:"
+                f"Unsupported URI scheme: {uri.split(':')[0]}. Supported schemes are strictly: http:, https:"
             )
 
     def convert_response(

@@ -168,5 +168,5 @@ src/.DS_Store
 .cursorrules
 
 # Project Docs
-project_history.md
-SECURITY_AUDIT.md
+docs/project_history.md
+docs/SECURITY_AUDIT.md
