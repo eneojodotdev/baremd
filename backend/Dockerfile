@@ -13,6 +13,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir \
     fastapi \
     uvicorn \
+    slowapi \
     python-multipart \
     faster-whisper \
     nvidia-cublas-cu12 \

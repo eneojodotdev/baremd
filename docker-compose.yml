@@ -12,6 +12,7 @@ services:
       - ./backend/packages/markitdown-ocr:/app/packages/markitdown-ocr
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - BAREMD_API_KEY=${BAREMD_API_KEY:-default_secret_key_123}
     ports:
       - "8001:8001"
     deploy:
@@ -31,5 +32,6 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8001
+      - NEXT_PUBLIC_BAREMD_API_KEY=${BAREMD_API_KEY:-default_secret_key_123}
     depends_on:
       - backend

@@ -62,6 +62,9 @@ export default function Home() {
       // Pointing to the FastAPI backend running on port 8001
       const response = await fetch("http://localhost:8001/api/convert", {
         method: "POST",
+        headers: {
+          "X-API-Key": process.env.NEXT_PUBLIC_BAREMD_API_KEY || "default_secret_key_123"
+        },
         body: formData,
       });
 

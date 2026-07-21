@@ -27,9 +27,14 @@ This fork introduces several fundamental architectural changes to the original M
 *   Documented and integrated a direct-injection fix for `libcublas` and `libcudnn` via pip to resolve CTranslate2 library linking issues.
 *   **Rationale:** When running deep learning inference engines (like `faster-whisper`) in WSL, the system often struggles to map native CUDA 12 `.so` libraries. By explicitly injecting the pip-installed NVidia binaries into the `LD_LIBRARY_PATH`, I ensured the GPU acceleration functions flawlessly in cross-platform Linux/WSL environments.
 
-### 4. Enterprise SSRF & DNS Rebinding Protection
-*   Injected a custom socket-level interception adapter directly into the parsing engine to globally block all attempts to resolve or route to private, local, and AWS metadata IP ranges. Explicitly blocked local `file:` schemes for remote conversion.
-*   **Rationale:** Standard Python HTTP clients are vulnerable to Server-Side Request Forgery and DNS rebinding attacks. I hardened the URL conversion endpoint to ensure it can safely fetch public resources without inadvertently exposing internal enterprise network topologies.
+---
+
+## Security Hardening
+I've heavily modified the backend to mitigate multiple zero-day security vulnerabilities typically found in document processing pipelines:
+- **SSRF & DNS Rebinding Defenses:** Created a custom `urllib3` socket-interceptor to block metadata endpoints, private IP spaces, and enforced strict DNS rebinding protections.
+- **Unauthenticated Access Mitigation:** Implemented strict API Key authentication (`X-API-Key`) across the FastAPI backend. Any request lacking a valid key is instantly dropped with a `401 Unauthorized` response.
+- **Resource Exhaustion Protection:** Built in `slowapi` rate-limiting keyed strictly to the API Key (60 requests/minute) to prevent brute force and DoS attacks on the GPU pipeline.
+- **URI Validation:** Stripped dangerous file schemes (`file:`, `data:`, `gopher:`) from resolution paths.
 
 ---
 
