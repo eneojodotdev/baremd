@@ -2,7 +2,7 @@
 
 A full-stack, bare-metal optimized, and privacy-focused web interface powered by Microsoft's **MarkItDown** core library. This project transforms the original CLI-based Python tool into a premium, interactive web application, fully supercharged with local GPU AI inference.
 
-## ✨ Core Features & Architecture
+## Core Features & Architecture
 
 - **Full-Stack Architecture**: A modern Next.js (App Router) frontend seamlessly integrated with a lightning-fast Python FastAPI backend.
 - **Local GPU Acceleration**: The default Google Web Speech API has been stripped out. Audio and video transcription is now powered locally by **faster-whisper**, utilizing your NVIDIA GPU (CUDA) to instantly process massive media files completely offline without API limitations.
@@ -11,25 +11,25 @@ A full-stack, bare-metal optimized, and privacy-focused web interface powered by
 
 ---
 
-## 🏗️ Architectural Changes (Changelog)
+## Architectural Changes (Changelog)
 
 This fork introduces several fundamental architectural changes to the original Microsoft MarkItDown library. Below is a detailed account of what was changed and why.
 
 ### 1. Web-Native Interaction (Frontend & Backend)
-*   **What we did:** Built a completely new FastAPI REST API (`backend/`) and a React/Next.js frontend interface (`frontend/`).
-*   **Rationale:** The original library was exclusively a Python module and CLI utility. We wanted to make the tool accessible to non-developers via a human-friendly, premium visual interface, while maintaining a strict zero-retention privacy policy on the backend (temporary files are immediately purged after processing).
+*   Built a completely new FastAPI REST API (`backend/`) and a React/Next.js frontend interface (`frontend/`).
+*   **Rationale:** The original library was exclusively a Python module and CLI utility. I wanted to make the tool accessible to non-developers via a human-friendly, premium visual interface, while maintaining a strict zero-retention privacy policy on the backend (temporary files are immediately purged after processing).
 
 ### 2. Audio Engine Overhaul & GPU Acceleration
-*   **What we did:** Ripped out the `speech_recognition` module from `packages/markitdown/src/markitdown/converters/_transcribe_audio.py` and completely replaced it with `faster-whisper`. Hardcoded the engine to use the `base` model running on `float16` precision, specifically targeting local NVIDIA GPUs (CUDA).
-*   **Rationale:** The original architecture relied on Google's free Web Speech API, which enforced strict, undocumented file limits (~10MB / 1-minute max). It failed catastrophically with a `[Errno 32] Broken pipe` error when attempting to transcribe real-world files (like 50-minute audio files). `faster-whisper` ensures lightning-fast, offline transcription of massive multi-hour files using local system resources, completely removing cloud API bottlenecks.
+*   Ripped out the `speech_recognition` module from `packages/markitdown/src/markitdown/converters/_transcribe_audio.py` and completely replaced it with `faster-whisper`. Hardcoded the engine to use the `base` model running on `float16` precision, specifically targeting local NVIDIA GPUs (CUDA).
+*   **Rationale:** The original architecture relied on Google's free Web Speech API, which enforced strict, undocumented file limits (~10MB / 1-minute max). It failed with a `[Errno 32] Broken pipe` error when attempting to transcribe real-world files (like 50-minute audio files). `faster-whisper` ensures lightning-fast, offline transcription of massive multi-hour files using local system resources, completely removing cloud API bottlenecks.
 
 ### 3. WSL & CUDA Environment Hardening
-*   **What we did:** Documented and integrated a direct-injection fix for `libcublas` and `libcudnn` via pip to resolve CTranslate2 library linking issues.
-*   **Rationale:** When running deep learning inference engines (like `faster-whisper`) in WSL, the system often struggles to map native CUDA 12 `.so` libraries. By explicitly injecting the pip-installed NVidia binaries into the `LD_LIBRARY_PATH`, we ensured the GPU acceleration functions flawlessly in cross-platform Linux/WSL environments.
+*   Documented and integrated a direct-injection fix for `libcublas` and `libcudnn` via pip to resolve CTranslate2 library linking issues.
+*   **Rationale:** When running deep learning inference engines (like `faster-whisper`) in WSL, the system often struggles to map native CUDA 12 `.so` libraries. By explicitly injecting the pip-installed NVidia binaries into the `LD_LIBRARY_PATH`, I ensured the GPU acceleration functions flawlessly in cross-platform Linux/WSL environments.
 
 ---
 
-## 🚀 Quick Start (Docker)
+## Quick Start (Docker)
 
 The fastest and most reliable way to run BareMD is via Docker Compose, which automatically builds the Next.js frontend and provisions the FastAPI backend with CUDA libraries injected for your GPU.
 
@@ -42,14 +42,14 @@ The fastest and most reliable way to run BareMD is via Docker Compose, which aut
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/baremd.git
+git clone https://github.com/eneojodotdev/baremd.git
 cd baremd
 
 # Build and start the entire stack
 docker compose up --build -d
 ```
 
-## 👁️ Optical Character Recognition (OCR) Guide
+## Optical Character Recognition (OCR) Guide
 
 BareMD is capable of extracting text from flat images embedded inside your PDFs, DOCX, PPTX, and XLSX files using LLM Vision.
 
@@ -78,7 +78,7 @@ If you are pushing BareMD to a cloud provider (AWS, Render, Vercel) or using Git
 
 ---
 
-## 🎮 Usage
+## Usage
 
 1. Open your browser and navigate to **[http://localhost:3000](http://localhost:3000)**.
 2. Drag and drop any supported document (PDF, Word, Excel, HTML, Audio, Video, etc.) into the interactive upload zone.
@@ -88,12 +88,12 @@ If you are pushing BareMD to a cloud provider (AWS, Render, Vercel) or using Git
 
 ---
 
-## 🔄 Migration Guide for Existing Users
+## Migration Guide for Existing Users
 
 If you are already using the original Microsoft MarkItDown library in your projects, you can migrate to this supercharged fork with **zero friction**. 
 
 ### 1. The Core API is 100% Intact
-We did not change the public API of the library. If you have an existing Python script that initializes MarkItDown (e.g., `md = MarkItDown(llm_client=...)`), it will continue to work exactly as before. Your LLM vision configurations, Azure Document Intelligence endpoints, and custom plugins require absolutely no code changes. The only difference is that any audio or video files passed to `.convert()` will automatically bypass Google and route to your local GPU via `faster-whisper`.
+I did not change the public API of the library. If you have an existing Python script that initializes MarkItDown (e.g., `md = MarkItDown(llm_client=...)`), it will continue to work exactly as before. Your LLM vision configurations, Azure Document Intelligence endpoints, and custom plugins require absolutely no code changes. The only difference is that any audio or video files passed to `.convert()` will automatically bypass Google and route to your local GPU via `faster-whisper`.
 
 ### 2. Drop-in Replacement Steps
 To migrate your existing Python workloads, simply swap the installation source:
@@ -108,7 +108,7 @@ pip install faster-whisper
 ```
 
 ### 3. Expanding Workloads Beyond Python (REST API)
-If you have existing systems written in Node.js, Go, or Ruby that previously couldn't use MarkItDown because it was a Python-exclusive library, you can now migrate those workloads effortlessly. Instead of writing complex Python wrappers, simply spin up our FastAPI backend and send a `POST /api/convert` request with your file attached from *any* programming language.
+If you have existing systems written in Node.js, Go, or Ruby that previously couldn't use MarkItDown because it was a Python-exclusive library, you can now migrate those workloads effortlessly. Instead of writing complex Python wrappers, simply spin up my FastAPI backend and send a `POST /api/convert` request with your file attached from *any* programming language.
 
 ---
 
