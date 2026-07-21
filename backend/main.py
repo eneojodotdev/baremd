@@ -36,10 +36,13 @@ limiter = Limiter(key_func=get_rate_limit_key)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Allow CORS for the Next.js frontend (default dev server on 3000)
+# Allow CORS strictly for configured origins
+cors_origins_env = os.environ.get("BAREMD_CORS_ORIGINS", "http://localhost:3000")
+allowed_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

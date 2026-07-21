@@ -13,6 +13,7 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - BAREMD_API_KEY=${BAREMD_API_KEY:-default_secret_key_123}
+      - BAREMD_CORS_ORIGINS=${BAREMD_CORS_ORIGINS:-http://localhost:3000,https://baremd.example.com}
     ports:
       - "8001:8001"
     deploy:
