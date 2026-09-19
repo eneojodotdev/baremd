@@ -30,7 +30,7 @@ This fork introduces several fundamental architectural changes to the original M
 ---
 
 ## Security Hardening
-I've heavily modified the backend to mitigate multiple zero-day security vulnerabilities typically found in document processing pipelines:
+I modified the backend to mitigate multiple zero-day security vulnerabilities typically found in document processing pipelines:
 - **SSRF & DNS Rebinding Defenses:** Created a custom `urllib3` socket-interceptor to block metadata endpoints, private IP spaces, and enforced strict DNS rebinding protections.
 - **Unauthenticated Access & CORS Mitigation:** Implemented strict API Key authentication (`X-API-Key`) across the FastAPI backend, dropping any unauthenticated request instantly (`401`). Also ripped out dangerous CORS wildcard `allow_origins=["*"]` configurations, replacing them with a secure, dynamically injected whitelist (`BAREMD_CORS_ORIGINS`) to prevent CSRF-style data exfiltration.
 - **Resource Exhaustion Protection:** Built in `slowapi` rate-limiting keyed strictly to the API Key (60 requests/minute) to prevent brute force and DoS attacks on the GPU pipeline.

@@ -7,6 +7,7 @@ import ButtonCopy from "@/components/ruixen/button-copy";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [urlInput, setUrlInput] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const [markdownOutput, setMarkdownOutput] = useState<string>("");
@@ -42,6 +43,7 @@ export default function Home() {
 
   const handleClear = () => {
     setSelectedFile(null);
+    setUrlInput("");
     setMarkdownOutput("");
     setError("");
     if (fileInputRef.current) {
@@ -50,13 +52,14 @@ export default function Home() {
   };
 
   const handleConvert = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile && !urlInput.trim()) return;
 
     setIsConverting(true);
     setError("");
 
     const formData = new FormData();
-    formData.append("file", selectedFile);
+    if (selectedFile) formData.append("file", selectedFile);
+    if (urlInput.trim()) formData.append("url", urlInput.trim());
 
     try {
       // Pointing to the FastAPI backend running on port 8001
@@ -153,6 +156,26 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="flex items-center gap-4 py-1">
+            <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-800"></div>
+            <span className="text-xs font-medium text-neutral-400 uppercase tracking-widest">OR</span>
+            <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-800"></div>
+          </div>
+
+          {/* URL Input */}
+          <div className="relative group">
+            <input
+              type="text"
+              value={urlInput}
+              onChange={(e) => {
+                setUrlInput(e.target.value);
+                if (e.target.value) setSelectedFile(null);
+              }}
+              placeholder="Paste a YouTube, Wikipedia, or web URL..."
+              className="w-full bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-neutral-400 dark:placeholder:text-neutral-600"
+            />
+          </div>
+
           {/* Selected File Details */}
           {selectedFile && (
             <div className="flex items-center justify-between p-4 bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 animate-in fade-in slide-in-from-bottom-4">
@@ -160,15 +183,36 @@ export default function Home() {
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg">
                   <FileIcon size={20} />
                 </div>
-                <div className="truncate">
-                  <p className="text-sm font-medium truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-sm font-medium truncate">{selectedFile.name}</span>
+                  <span className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</span>
                 </div>
               </div>
               <button 
                 onClick={handleClear}
-                className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full transition-colors"
-                title="Clear selection"
+                className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                title="Remove file"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
+
+          {urlInput && (
+            <div className="flex items-center justify-between p-4 bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 animate-in fade-in slide-in-from-bottom-4">
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-lg">
+                  <FileIcon size={20} />
+                </div>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-sm font-medium truncate">{urlInput}</span>
+                  <span className="text-xs text-muted-foreground">Web URL</span>
+                </div>
+              </div>
+              <button 
+                onClick={handleClear}
+                className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                title="Remove URL"
               >
                 <X size={18} />
               </button>
@@ -184,9 +228,9 @@ export default function Home() {
           {/* Action Button */}
           <button
             onClick={handleConvert}
-            disabled={!selectedFile || isConverting}
+            disabled={(!selectedFile && !urlInput.trim()) || isConverting}
             className={`mt-auto relative w-full py-4 px-6 rounded-xl font-medium text-white shadow-lg transition-all duration-300
-              ${!selectedFile 
+              ${(!selectedFile && !urlInput.trim()) 
                 ? 'bg-neutral-300 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-500 shadow-none cursor-not-allowed' 
                 : 'bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white hover:shadow-xl hover:-translate-y-0.5'}
             `}

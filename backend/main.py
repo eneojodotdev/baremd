@@ -1,7 +1,8 @@
 import os
 import shutil
+from typing import Optional
 from tempfile import NamedTemporaryFile
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Request
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Request
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -60,8 +61,21 @@ md = MarkItDown(
 
 @app.post("/api/convert")
 @limiter.limit("60/minute")
-async def convert_file(request: Request, file: UploadFile = File(...), api_key: str = Depends(get_api_key)):
+async def convert_file(
+    request: Request, 
+    file: Optional[UploadFile] = File(None), 
+    url: Optional[str] = Form(None), 
+    api_key: str = Depends(get_api_key)
+):
+    if not file and not url:
+        raise HTTPException(status_code=400, detail="Must provide either a file or a URL")
+        
     try:
+        if url:
+            # Convert directly from URL (MarkItDown handles downloading/fetching internally)
+            result = md.convert(url)
+            return {"filename": url, "markdown": result.text_content}
+            
         # Create a temporary file to store the upload
         suffix = os.path.splitext(file.filename)[1] if file.filename else ""
         with NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
